@@ -17,7 +17,6 @@ let tweets = [];
 app.post('/sign-up', (req, res) => {
   const loggedUser = req.body;
   const areSignUpFormatValid = validateSignUpFormat(loggedUser);
-
   if (!areSignUpFormatValid) {
     res.sendStatus(400);
     return;
@@ -51,10 +50,16 @@ app.post('/tweets', (req, res) => {
 });
 
 app.get('/tweets', (req, res) => {
-  const lastTenTweets = tweets.slice(0, 10).map((tweet) => {
+  const page = Number(req.query.page);
+  if (isNaN(page) || page < 1 || page % 1 !== 0) {
+    res.status(400).send('Informe uma página válida!');
+    return;
+  }
+
+  const tweetsToSend = tweets.slice(0, page * 10).map((tweet) => {
     return { ...tweet, avatar: users.find((user) => user.username === tweet.username).avatar };
   });
-  res.send(lastTenTweets);
+  res.send(tweetsToSend);
 });
 
 app.listen(5000, () => {
