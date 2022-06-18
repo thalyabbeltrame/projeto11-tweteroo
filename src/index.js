@@ -2,11 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import chalk from 'chalk';
 
-import validateSignUpFormat from './utils/validators.js';
-import validateSignUpFields from './utils/validators.js';
-import validateTweetFormat from './utils/validators.js';
-import validateTweetFields from './utils/validators.js';
-
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -16,6 +11,7 @@ let tweets = [];
 
 app.post('/sign-up', (req, res) => {
   const loggedUser = req.body;
+  console.log(loggedUser);
   const areSignUpFormatValid = validateSignUpFormat(loggedUser);
   if (!areSignUpFormatValid) {
     res.sendStatus(400);
@@ -61,6 +57,22 @@ app.get('/tweets', (req, res) => {
   const tweetsToSend = tweets.slice(minLimit, maxLimit).map((tweet) => {
     return { ...tweet, avatar: users.find((user) => user.username === tweet.username).avatar };
   });
+  res.send(tweetsToSend);
+});
+
+app.get('tweets/:username', (req, res) => {
+  const username = req.params.username;
+  const user = users.find((user) => user.username === username);
+  if (!user) {
+    res.status(400).send('Usuário não encontrado!');
+    return;
+  }
+
+  const tweetsToSend = tweets
+    .filter((tweet) => tweet.username === username)
+    .map((tweet) => {
+      return { ...tweet, avatar: user.avatar };
+    });
   res.send(tweetsToSend);
 });
 
