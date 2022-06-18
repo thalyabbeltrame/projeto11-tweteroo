@@ -56,7 +56,9 @@ app.get('/tweets', (req, res) => {
     return;
   }
 
-  const tweetsToSend = tweets.slice(0, page * 10).map((tweet) => {
+  const minLimit = (page - 1) * 10;
+  const maxLimit = page * 10;
+  const tweetsToSend = tweets.slice(minLimit, maxLimit).map((tweet) => {
     return { ...tweet, avatar: users.find((user) => user.username === tweet.username).avatar };
   });
   res.send(tweetsToSend);
