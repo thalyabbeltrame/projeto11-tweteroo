@@ -17,8 +17,8 @@ const isURLImageValid = (url) => {
   );
 };
 
-const validateTweetFormat = (tweet) => {
-  return Object.entries(tweet).length === 2 && tweet.username !== undefined && tweet.tweet !== undefined;
+const validateTweetFormat = (tweet, username) => {
+  return typeof tweet === 'string' && typeof username === 'string';
 };
 
 const validateTweetFields = (tweet) => {
@@ -27,4 +27,4 @@ const validateTweetFields = (tweet) => {
   return isUsernameValid && isTweetValid;
 };
 
-export default { validateSignUpFields, validateSignUpFormat, validateTweetFormat };
+export default { validateSignUpFormat, validateSignUpFields, validateTweetFormat, validateTweetFields };

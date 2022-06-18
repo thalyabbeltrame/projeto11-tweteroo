@@ -34,15 +34,16 @@ app.post('/sign-up', (req, res) => {
 
 app.post('/tweets', (req, res) => {
   const tweet = req.body;
-  const areTweetFormatValid = validateTweetFormat(tweet);
+  const username = req.header('user');
+  const areTweetFormatValid = validateTweetFormat(tweet, username);
   if (!areTweetFormatValid) {
     res.sendStatus(400);
     return;
   }
 
-  const areTweetInfosValid = validateTweetFields(tweet);
+  const areTweetInfosValid = validateTweetFields(tweet, username);
   if (areTweetInfosValid) {
-    tweets.unshift(tweet);
+    tweets.unshift({ username: username, tweet: tweet });
     res.status(201).send('Ok');
   } else {
     res.status(400).send('Todos os campos são obrigatórios!');
