@@ -2,6 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import chalk from 'chalk';
 
+import validateSignUpFields from './utils/validateSignUpFields.js';
+import validateSignUpFormat from './utils/validateSignUpFormat.js';
+import validateTweetFields from './utils/validateTweetFields.js';
+import validateTweetFormat from './utils/validateTweetFormat.js';
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -11,7 +16,6 @@ let tweets = [];
 
 app.post('/sign-up', (req, res) => {
   const loggedUser = req.body;
-  console.log(loggedUser);
   const areSignUpFormatValid = validateSignUpFormat(loggedUser);
   if (!areSignUpFormatValid) {
     res.sendStatus(400);
@@ -20,6 +24,10 @@ app.post('/sign-up', (req, res) => {
 
   const areSignUpInfosValid = validateSignUpFields(loggedUser);
   if (areSignUpInfosValid) {
+    if (users.find((user) => user.username === loggedUser.username)) {
+      res.status(400).send('Esse usuário já existe');
+      return;
+    }
     users.push(loggedUser);
     res.status(201).send('Ok');
   } else {
@@ -29,7 +37,7 @@ app.post('/sign-up', (req, res) => {
 
 app.post('/tweets', (req, res) => {
   const tweet = req.body;
-  const username = req.header('user');
+  const username = req.header('User');
   const areTweetFormatValid = validateTweetFormat(tweet, username);
   if (!areTweetFormatValid) {
     res.sendStatus(400);
@@ -38,7 +46,7 @@ app.post('/tweets', (req, res) => {
 
   const areTweetInfosValid = validateTweetFields(tweet, username);
   if (areTweetInfosValid) {
-    tweets.unshift({ username: username, tweet: tweet });
+    tweets.unshift({ username: username, tweet: tweet.tweet });
     res.status(201).send('Ok');
   } else {
     res.status(400).send('Todos os campos são obrigatórios!');
@@ -60,7 +68,7 @@ app.get('/tweets', (req, res) => {
   res.send(tweetsToSend);
 });
 
-app.get('tweets/:username', (req, res) => {
+app.get('/tweets/:username', (req, res) => {
   const username = req.params.username;
   const user = users.find((user) => user.username === username);
   if (!user) {
