@@ -1,4 +1,4 @@
-function validateSignUFormat(loggedUser) {
+function validateSignUpFormat(loggedUser) {
   const isObject = typeof loggedUser === 'object';
   const hasTwoProperties = Object.entries(loggedUser).length === 2;
   const isUsernameFormatValid = typeof loggedUser.username === 'string';
@@ -6,4 +6,4 @@ function validateSignUFormat(loggedUser) {
   return isObject && hasTwoProperties && isUsernameFormatValid && isAvatarFormatValid;
 }
 
-export default validateSignUFormat;
+export default validateSignUpFormat;

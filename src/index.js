@@ -20,19 +20,16 @@ app.post('/sign-up', (req, res) => {
     res.sendStatus(400);
     return;
   }
-
   const areSignUpFieldsValid = validateSignUpFields(loggedUser);
   if (!areSignUpFieldsValid) {
     res.status(400).send('Todos os campos são obrigatórios!');
     return;
   }
-
   const usernameAlreadyExists = users.some((user) => user.username === loggedUser.username);
   if (usernameAlreadyExists) {
     res.status(400).send('Esse usuário já existe!');
     return;
   }
-
   users.push(loggedUser);
   res.status(201).send('Ok');
 });
@@ -50,13 +47,11 @@ app.post('/tweets', (req, res) => {
     res.status(400).send('Todos os campos são obrigatórios!');
     return;
   }
-
   const usernameExists = users.some((user) => user.username === username);
   if (!usernameExists) {
     res.status(400).send('Esse usuário não existe!');
     return;
   }
-
   tweets.unshift({ username: username, tweet: body.tweet });
   res.status(201).send('Ok');
 });
@@ -67,7 +62,6 @@ app.get('/tweets', (req, res) => {
     res.status(400).send('Informe uma página válida!');
     return;
   }
-
   const tweetsToSend = tweets.slice((page - 1) * 10, page * 10).map((tweet) => {
     return { ...tweet, avatar: users.find((user) => user.username === tweet.username).avatar };
   });
@@ -81,7 +75,6 @@ app.get('/tweets/:username', (req, res) => {
     res.status(400).send('Usuário não encontrado!');
     return;
   }
-
   const tweetsToSend = tweets
     .filter((tweet) => tweet.username === username)
     .map((tweet) => {
