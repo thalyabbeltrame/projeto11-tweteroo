@@ -2,55 +2,63 @@ import express from 'express';
 import cors from 'cors';
 import chalk from 'chalk';
 
-import validateSignUpFields from './utils/validateSignUpFields.js';
-import validateSignUpFormat from './utils/validateSignUpFormat.js';
-import validateTweetFields from './utils/validateTweetFields.js';
-import validateTweetFormat from './utils/validateTweetFormat.js';
+import validateSignUpFormat from './validators/signUpFormat.js';
+import validateSignUpFields from './validators/signUpFields.js';
+import validateTweetFormat from './validators/tweetFormat.js';
+import validateTweetFields from './validators/tweetFields.js';
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+app.use([express.json(), cors()]);
 
 let users = [];
 let tweets = [];
 
 app.post('/sign-up', (req, res) => {
   const loggedUser = req.body;
-  const areSignUpFormatValid = validateSignUpFormat(loggedUser);
-  if (!areSignUpFormatValid) {
+  const isSignUpFormatValid = validateSignUpFormat(loggedUser);
+  if (!isSignUpFormatValid) {
     res.sendStatus(400);
     return;
   }
 
-  const areSignUpInfosValid = validateSignUpFields(loggedUser);
-  if (areSignUpInfosValid) {
-    if (users.find((user) => user.username === loggedUser.username)) {
-      res.status(400).send('Esse usuário já existe');
-      return;
-    }
-    users.push(loggedUser);
-    res.status(201).send('Ok');
-  } else {
+  const areSignUpFieldsValid = validateSignUpFields(loggedUser);
+  if (!areSignUpFieldsValid) {
     res.status(400).send('Todos os campos são obrigatórios!');
+    return;
   }
+
+  const usernameAlreadyExists = users.some((user) => user.username === loggedUser.username);
+  if (usernameAlreadyExists) {
+    res.status(400).send('Esse usuário já existe!');
+    return;
+  }
+
+  users.push(loggedUser);
+  res.status(201).send('Ok');
 });
 
 app.post('/tweets', (req, res) => {
-  const tweet = req.body;
+  const body = req.body;
   const username = req.header('User');
-  const areTweetFormatValid = validateTweetFormat(tweet, username);
-  if (!areTweetFormatValid) {
+  const isTweetFormatValid = validateTweetFormat(body, username);
+  if (!isTweetFormatValid) {
     res.sendStatus(400);
     return;
   }
-
-  const areTweetInfosValid = validateTweetFields(tweet, username);
-  if (areTweetInfosValid) {
-    tweets.unshift({ username: username, tweet: tweet.tweet });
-    res.status(201).send('Ok');
-  } else {
+  const areTweetFieldsValid = validateTweetFields(body, username);
+  if (!areTweetFieldsValid) {
     res.status(400).send('Todos os campos são obrigatórios!');
+    return;
   }
+
+  const usernameExists = users.some((user) => user.username === username);
+  if (!usernameExists) {
+    res.status(400).send('Esse usuário não existe!');
+    return;
+  }
+
+  tweets.unshift({ username: username, tweet: body.tweet });
+  res.status(201).send('Ok');
 });
 
 app.get('/tweets', (req, res) => {
@@ -60,9 +68,7 @@ app.get('/tweets', (req, res) => {
     return;
   }
 
-  const minLimit = (page - 1) * 10;
-  const maxLimit = page * 10;
-  const tweetsToSend = tweets.slice(minLimit, maxLimit).map((tweet) => {
+  const tweetsToSend = tweets.slice((page - 1) * 10, page * 10).map((tweet) => {
     return { ...tweet, avatar: users.find((user) => user.username === tweet.username).avatar };
   });
   res.send(tweetsToSend);
@@ -70,8 +76,8 @@ app.get('/tweets', (req, res) => {
 
 app.get('/tweets/:username', (req, res) => {
   const username = req.params.username;
-  const user = users.find((user) => user.username === username);
-  if (!user) {
+  const userInfos = users.find((user) => user.username === username);
+  if (!userInfos) {
     res.status(400).send('Usuário não encontrado!');
     return;
   }
@@ -79,11 +85,11 @@ app.get('/tweets/:username', (req, res) => {
   const tweetsToSend = tweets
     .filter((tweet) => tweet.username === username)
     .map((tweet) => {
-      return { ...tweet, avatar: user.avatar };
+      return { ...tweet, avatar: userInfos.avatar };
     });
   res.send(tweetsToSend);
 });
 
 app.listen(5000, () => {
-  console.log(chalk.blue('O servidor está rodando na porta 5000'));
+  console.log(chalk.blue('O servidor está rodando na porta 5000!'));
 });
