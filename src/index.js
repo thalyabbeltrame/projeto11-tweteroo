@@ -49,7 +49,7 @@ app.post('/tweets', (req, res) => {
   }
   const usernameExists = users.some((user) => user.username === username);
   if (!usernameExists) {
-    res.status(400).send('Esse usuário não existe!');
+    res.status(400).send('Usuário não encontrado!');
     return;
   }
   tweets.unshift({ username: username, tweet: body.tweet });

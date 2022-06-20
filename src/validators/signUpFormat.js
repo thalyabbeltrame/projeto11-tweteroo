@@ -1,8 +1,8 @@
-function validateSignUpFormat(loggedUser) {
-  const isObject = typeof loggedUser === 'object';
-  const hasTwoProperties = Object.entries(loggedUser).length === 2;
-  const isUsernameFormatValid = typeof loggedUser.username === 'string';
-  const isAvatarFormatValid = typeof loggedUser.avatar === 'string';
+function validateSignUpFormat(user) {
+  const isObject = typeof user === 'object';
+  const hasTwoProperties = Object.entries(user).length === 2;
+  const isUsernameFormatValid = typeof user.username === 'string';
+  const isAvatarFormatValid = typeof user.avatar === 'string';
   return isObject && hasTwoProperties && isUsernameFormatValid && isAvatarFormatValid;
 }
 

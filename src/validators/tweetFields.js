@@ -1,6 +1,6 @@
-const validateTweetFields = (tweet, username) => {
+const validateTweetFields = (body, username) => {
   const isUsernameValid = username.trim() !== '';
-  const isTweetValid = tweet.tweet.trim() !== '';
+  const isTweetValid = body.tweet.trim() !== '';
   return isUsernameValid && isTweetValid;
 };
 
